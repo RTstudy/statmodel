@@ -16,6 +16,7 @@
 library(tidyverse)
 library(ggplot2)
 library(psych)
+library(reshape2)
 
 # set working directory ---------------------------------------------------
 
@@ -175,3 +176,73 @@ logLik(fit.all)
 # other comments ----------------------------------------------------------
 
 # 図3.9はplot.d0.Rで描画されている
+
+# 図3.9をggplotで自力で描いてみる
+
+## データ作成
+## λ = exp(β_0 + xβ_1)
+x <- seq(0, 2, length = 30)
+beta <- c(-4, 3)
+lambda <- exp(beta[1] + x * beta[2])
+y <- sapply(seq(length(x)), function(i){
+  rpois(1, lambda[i])
+})
+
+## ポアソン回帰
+model <- glm(y ~ x,family = poisson)
+summary(model)
+
+## 回帰曲線用のデータを作成
+y_pred <- predict(model, newdata = data.frame(x=x), type = 'response')
+  
+## プロットを確認
+plot(x, y) # betaの値はgenerate.d0.Rを参照
+
+## x, lambda, yのデータフレームを作る
+data_df <- data.frame(x = x,
+                      lambda  = lambda,
+                      y = y,
+                      y_pred = y_pred)
+
+## ggplotで元データと回帰曲線をプロットしてみる
+ggplot(data = data_df, aes(x = x, y = y)) +
+  geom_point(size = 3, shape = 21) +
+  geom_line(linetype = 'dashed', size = 1, aes(x = x, y = y_pred)) +
+  scale_y_continuous(breaks=c(0,seq(max(y))))
+
+## 9, 18, 27番目のlambdaの値におけるポアソン分布を作成
+## プロットしてチェック
+x_p <- c(0, seq(max(y)))
+plot(x_p, dpois(x_p, lambda[9]))
+plot(x_p, dpois(x_p, lambda[18]))
+plot(x_p, dpois(x_p, lambda[27]))
+
+## 各確率分布をデータフレームにして格納
+## tidy dataにする！
+p_df <- data.frame(pos = melt(sapply(c(9,18,27), function(i){ rep(i*(2/30), length(x_p)) }))$value,
+                   x_p = rep(x_p, 3),
+                   prob = melt(sapply(c(9,18,27), function(i){ dpois(x_p, lambda[i]) }))$value)
+
+## 矩形描画用のデータを追加する
+## geom_rectの引数
+### xmin:左端, xmax:右端, ymin:下端, ymax=上端
+p_df$xmin <- p_df$pos - (min(p_df$pos) * (p_df$prob * 0.9))
+p_df$xmax <- p_df$pos
+p_df$ymin <- p_df$x_p - 0.4
+p_df$ymax <- p_df$x_p + 0.4
+
+## 矩形の描画テスト
+ggplot() +
+  geom_rect(data = p_df, aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax), fill = 'gray69') +
+  geom_vline(xintercept = c(9,18,27)*(2/30), color = 'gray69') +
+  theme(legend.position = 'none')
+
+
+## 最終描画
+ggplot() +
+  geom_rect(data = p_df, aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax), fill = 'gray69') +
+  geom_vline(xintercept = c(9,18,27)*(2/30), color = 'gray69') +
+  geom_point(data = data_df, size = 3, shape = 21, aes(x = x, y = y)) +
+  geom_line(linetype = 'dashed', size = 1, aes(x = x, y = y_pred)) +
+  scale_y_continuous(breaks=c(0,seq(max(y)))) +
+  theme(legend.position = 'none')
