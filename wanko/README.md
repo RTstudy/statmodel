@@ -67,3 +67,35 @@
 
 ## 図3.9を自力で描画してみた
 ![fig_3_3](fig_3_9.png)
+
+
+# 第四章
+
+## あらすじ
+- 最大対数尤度でモデルの「当てはまりの良さ」を評価することができる
+- しかし、それは「たまたま得られたデータに対する当てはまりの良さ」であり、新たにとられるであろうデータに対する当てはまりの良さではない
+- そこで数値実験により平均対数尤度（最大対数尤度の期待値）を算出し、最大対数尤度との差の分布を検討した
+- その結果、差の期待値（=バイアス）はおおよそパラメータ数と一致することが分かった
+- AICが対数尤度にパラメータ数を足しているのは、そのバイアスを補正するためである
+
+## 不偏分散の証明
+- バイアスという言葉でふと思い出したので、本文には直接関係ないが、不偏分散の証明を復習した
+
+### 平均<img src="https://latex.codecogs.com/gif.latex?\inline&space;\overline{X}" />の分散
+- n個の確率変数<img src="https://latex.codecogs.com/gif.latex?\inline&space;\left&space;\{&space;X_{1},X_{2},...,X_{n}&space;\right&space;\}" />を考える
+- 各Xは平均<img src="https://latex.codecogs.com/gif.latex?\inline&space;\mu" />、分散<img src="https://latex.codecogs.com/gif.latex?\inline&space;\sigma&space;^{2}" />をもつ同じ分布から得られたものとする
+- このときの各Xの標本平均<img src="https://latex.codecogs.com/gif.latex?\inline&space;\overline{X}" />の分散は以下のように求められる
+
+<img src="https://latex.codecogs.com/gif.latex?\begin{align*}&space;Var(\overline{X})&space;&=&space;Var(\frac{x_{1}&plus;x_{2}&plus;...&plus;x_{n}}{n})\\&space;&=&space;\frac{1}{n^{2}}Var(x_{1}&plus;x_{2}&plus;...&plus;x_{n}))\\&space;&=&space;\frac{1}{n^{2}}\left&space;\{Var(x_{1})&plus;Var(x_{2})&plus;...&plus;Var(x_{n})\right&space;\}\\&space;&=&space;\frac{1}{n^{2}}n\sigma&space;^{2}\\&space;&=&space;\frac{1}{n}\sigma^{2}\\&space;&=&space;E((\overline&space;X-\mu)^{2})&space;&space;\end{align*}" />
+
+### 標本分散<img src="https://latex.codecogs.com/gif.latex?\inline&space;S^{2}" />の算出
+<img src="https://latex.codecogs.com/gif.latex?\begin{align*}&space;S^{2}&space;&=&space;\frac{1}{n}\sum_{i=1}^{n}\left&space;(&space;x_{i}-\overline{x}&space;\right&space;)^{2}&space;\end{align*}" />
+
+### 標本分散<img src="https://latex.codecogs.com/gif.latex?\inline&space;S^{2}" />の式変形
+<img src="https://latex.codecogs.com/gif.latex?\begin{align*}&space;S^{2}&space;&=&space;\frac{1}{n}\sum_{i=1}^{n}\left&space;(&space;x_{i}-\overline{x}&space;\right&space;)^{2}\\&space;&=&space;\frac{1}{n}\sum_{i=1}^{n}\left&space;(&space;x_{i}-\overline{x}&space;-&space;\mu&space;&plus;&space;\mu&space;\right&space;)^{2}\\&space;&=&space;\frac{1}{n}\sum_{i=1}^{n}&space;\left&space;\{(x_{i}-\mu)-(\overline{x}&space;-&space;\mu)&space;\right&space;\}&space;^{2}\\&space;&=&space;\frac{1}{n}\sum_{i=1}^{n}&space;\left&space;\{(x_{i}-\mu)^{2}-2(x_{i}-\mu)(\overline{x}&space;-&space;\mu)&plus;(\overline{x}&space;-&space;\mu)^{2}\right&space;\}\\&space;&=&space;\frac{1}{n}\sum_{i=1}^{n}&space;(x_{i}-\mu)^{2}&space;-&space;\frac{2}{n}\sum_{i=1}^{n}(x_{i}-\mu)(\overline{x}&space;-&space;\mu)&space;&plus;&space;\frac{1}{n}\sum_{i=1}^{n}(\overline{x}&space;-&space;\mu)^{2}\\&space;&=&space;\frac{1}{n}\sum_{i=1}^{n}&space;(x_{i}-\mu)^{2}&space;-&space;\frac{2}{n}(\overline{x}&space;-&space;\mu)\sum_{i=1}^{n}(x_{i}-\mu)&space;&plus;&space;(\overline{x}&space;-&space;\mu)^{2}\\&space;&=&space;\frac{1}{n}\sum_{i=1}^{n}&space;(x_{i}-\mu)^{2}&space;-&space;(\overline{x}&space;-&space;\mu)^{2}\\&space;\end{align*}" />
+
+### 標本分散の期待値
+<img src="https://latex.codecogs.com/gif.latex?\begin{align*}&space;E[S^{2}]&space;&=&space;E[\frac{1}{n}\sum_{i=1}^{n}&space;(x_{i}-\mu)^{2}&space;-&space;(\overline{x}&space;-&space;\mu)^{2}]\\&space;&=&space;E[\frac{1}{n}\sum_{i=1}^{n}&space;(x_{i}-\mu)^{2}]&space;-&space;E[(\overline{x}&space;-&space;\mu)^{2}]\\&space;&=&space;\frac{1}{n}E[\sum_{i=1}^{n}&space;(x_{i}-\mu)^{2}]&space;-&space;\frac{\sigma^{2}}{n}\\&space;&=&space;\frac{1}{n}E[(x_{1}-\mu)^{2}&space;&plus;&space;(x_{1}-\mu)^{2}&plus;...&plus;(x_{n}-\mu)^{2}]&space;-&space;\frac{\sigma^{2}}{n}\\&space;&=&space;\frac{1}{n}n\sigma^{2}&space;-&space;\frac{\sigma^{2}}{n}\\&space;&=&space;\sigma^{2}&space;-&space;\frac{\sigma^{2}}{n}\\&space;&=&space;\frac{(n-1)\sigma^{2}}{n}&space;\end{align*}" />
+
+### バイアス補正
+<img src="https://latex.codecogs.com/gif.latex?\begin{align*}&space;\frac{1}{n}\sum_{i=1}^{n}(x_{i}-\overline{x})&space;&=&space;\frac{(n-1)\sigma^{2}}{n}\\&space;\frac{1}{n-1}\sum_{i=1}^{n-1}(x_{i}-\overline{x})&space;&=&space;\sigma^{2}\\&space;\end{align*}" />
