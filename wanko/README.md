@@ -82,9 +82,9 @@
 - バイアスという言葉でふと思い出したので、本文には直接関係ないが、不偏分散の証明を復習した
 
 ### 平均<img src="https://latex.codecogs.com/gif.latex?\inline&space;\overline{X}" />の分散
-- n個の確率変数<img src="https://latex.codecogs.com/gif.latex?\inline&space;\left&space;\{&space;X_{1},X_{2},...,X_{n}&space;\right&space;\}" />を考える
-- 各Xは平均<img src="https://latex.codecogs.com/gif.latex?\inline&space;\mu" />、分散<img src="https://latex.codecogs.com/gif.latex?\inline&space;\sigma&space;^{2}" />をもつ同じ分布から得られたものとする
-- このときの各Xの標本平均<img src="https://latex.codecogs.com/gif.latex?\inline&space;\overline{X}" />の分散は以下のように求められる
+- 確率変数<img src="https://latex.codecogs.com/gif.latex?\inline&space;X" />を考える
+- Xは平均<img src="https://latex.codecogs.com/gif.latex?\inline&space;\mu" />、分散<img src="https://latex.codecogs.com/gif.latex?\inline&space;\sigma&space;^{2}" />をもつ分布から得られたものとする
+- このときのXの標本平均<img src="https://latex.codecogs.com/gif.latex?\inline&space;\overline{X}" />の分散は以下のように求められる
 
 <img src="https://latex.codecogs.com/gif.latex?\begin{align*}&space;Var(\overline{X})&space;&=&space;Var(\frac{x_{1}&plus;x_{2}&plus;...&plus;x_{n}}{n})\\&space;&=&space;\frac{1}{n^{2}}Var(x_{1}&plus;x_{2}&plus;...&plus;x_{n}))\\&space;&=&space;\frac{1}{n^{2}}\left&space;\{Var(x_{1})&plus;Var(x_{2})&plus;...&plus;Var(x_{n})\right&space;\}\\&space;&=&space;\frac{1}{n^{2}}n\sigma&space;^{2}\\&space;&=&space;\frac{1}{n}\sigma^{2}\\&space;&=&space;E((\overline&space;X-\mu)^{2})&space;&space;\end{align*}" />
 
