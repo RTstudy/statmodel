@@ -81,6 +81,17 @@
 ## 不偏分散の証明（統計検定対応）
 - バイアスという言葉でふと思い出したので、本文には直接関係ないが、不偏分散の証明を復習した
 
+### 不変推定量とは
+- あるパラメータ<img src="https://latex.codecogs.com/gif.latex?\inline&space;\theta" title="\theta" />がその推定量<img src="https://latex.codecogs.com/gif.latex?\inline&space;\hat{\theta}" title="\hat{\theta}" />の期待値と一致するとき、<img src="https://latex.codecogs.com/gif.latex?\inline&space;\hat{\theta}" title="\hat{\theta}" />を不偏推定量と呼ぶ
+- [不偏推定量とは？平均と分散を例に分かりやすく解説](https://ai-trend.jp/basic-study/estimator/unbiasedness/)
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;E[\hat{\theta}]&space;=&space;\theta" title="E[\hat{\theta}] = \theta" />
+
+### 推定量のバイアス
+- 推定量のバイアスは以下の式で定式化される。
+- バイアスが0のとき、<img src="https://latex.codecogs.com/gif.latex?\inline&space;\hat{\theta}" title="\hat{\theta}" />は不偏推定量である
+- バイアスが0でないとき、<img src="https://latex.codecogs.com/gif.latex?\inline&space;\hat{\theta}" title="\hat{\theta}" />をバイアスで補正することにより不偏推定量を得ることができる
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;bias&space;=&space;E[\hat{\theta}]&space;-&space;\theta" title="bias = E[\hat{\theta}] - \theta" />
+
 ### 平均<img src="https://latex.codecogs.com/gif.latex?\inline&space;\overline{X}" />の分散
 - 確率変数<img src="https://latex.codecogs.com/gif.latex?\inline&space;X" />を考える
 - Xは平均<img src="https://latex.codecogs.com/gif.latex?\inline&space;\mu" />、分散<img src="https://latex.codecogs.com/gif.latex?\inline&space;\sigma&space;^{2}" />をもつ分布から得られたものとする
