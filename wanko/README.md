@@ -124,7 +124,7 @@
 - Null modelの条件下で生成されたデータを用いて、Null modelとx modelのdevianceの差の分布を計算
 - その分布における片側95%点は3.82（グレーの縦線）、実際のデータから得られたdevianceの差は4.51（赤の縦線）
 - 以上より、Null modelから生成されたデータでは偶然にx modelの方が4.5程度小さい逸脱度になる確率が小さいため、Null modelは棄却され、x modelが採択される
-![chapter04_PBresult.png](chapter04_PBresult.png)
+![chapter05_PBresult.png](chapter05_PBresult.png)
 
 ## ＜参考＞ネイマン=ピアソンとフィッシャーの論争
 - まず前提として、ネイマン=ピアソンもフィッシャーも、頻度論の立場をとる。頻度論とは「確率とはある事象が発生する頻度のことである」とする立場である。
