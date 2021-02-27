@@ -140,3 +140,57 @@
 	- 一方、フィッシャー流の考え方はほとんど用いられない。
 	- しかしながら、ネイマン=ピアソン流の仮説検定理論はしばしば誤用され、またp-value hacking等に悪用され、問題となっている。仮説検定によって得られる結論は例えば「群Aと群Bに差がある」といったものであり、その差がどれくらいかは問わない。どんなに差が小さくても、サンプルサイズを大きくすれば統計的に有意な差を得ることができてしまう。
 	- そこで[効果量](https://qiita.com/fhiyo/items/9cb2b05b36566ffe0eff)といった指標も出てきているが、p値に変わる指標が出てきていないのが現状。
+
+
+# 第六章
+
+## オフセット項について
+- いまいちオフセット項の使いどころがわからない
+	- [GLMの基礎：オフセット項（割算値の回避）](https://rindalog.blogspot.com/2016/01/glm_23.html)
+- 本文では変数変換も好ましくないとしているが、kaggle等では測定値の対数変換などがよく使われている（ガンマ回帰のところでもすこし言及）
+	- これは機械学習の文脈と統計的モデリングの文脈で異なるものだと考えて良いか？それとも一般的に好ましくないものなのか？
+	- たとえばkaggleの住宅価格問題など
+	- 実業務においても、どちらかというと0より大で連続値の対数正規分布っぽいデータを見ることが多いので、ガンマ分布のGLMなどをもう少し掘り下げた方が良いかもしれない
+
+## ロジスティック回帰
+- 要するに応答変数が二項分布することを仮定した回帰である
+- 推定されるのは二項分布におけるパラメータq(成功確率)であり、基本的に0-1の間にある
+
+## ガンマ回帰
+- 本項では説明変数の対数がとられている。これは変数変換とは違うのか？
+	- 改めて読んでみると、そもそもの仮定がμ=Ax^bであり、線形性を仮定していない
+	- これを線形予測子の形に変換するためにA=exp(a)として両辺対数をとり、log(μ)=a+blogxの形に変形している
+	- つまり、「もとの変数が対数をとると正規分布になるから」という理由で対数変換をしているわけではなく、そもそものモデル式が線形性を仮定していないため、回帰のためにモデル式全体を変換している、ということなのだと理解した
+		- そう考えると、もしかしてある変数xを対数変換してy=β_0+log(x)β_1という式をたてるのはそもそもよろしくない、ということか？
+- 変数変換の意味について
+	- [対数変換を行う意味について。回帰分析において対数変換する背景にある前提とは？](https://atarimae.biz/archives/13161)
+	- [どのようなときに目的変数Yではなくlog(Y)にしたほうがよいのか？～対数変換するメリットとデメリット～](https://datachemeng.com/post-3529/)
+	- [回帰分析において自然対数をとる目的](https://h-memo.com/the-purpose-of-taking-the-natural-logarithm-in-regression-analysis/)
+
+## モデル選択
+- いわずとしれたTJOさんのブログから
+	- [「使い分け」ではなく「妥当かどうか」が大事：重回帰分析＆一般化線形モデル選択まわりの再まとめ](https://tjo.hatenablog.com/entry/2013/09/23/232814)
+
+## 【統計検定対応】正規分布の最尤推定量の導出
+- p137で正規分布の尤度関数が出てきたので、復習ついでにパラメータの最尤推定量導出を復習
+
+- 正規分布
+<img src="https://latex.codecogs.com/gif.latex?\begin{align*}&space;f(x)&space;&=&space;\frac{1}{\sqrt{2\pi\sigma^2}}exp\left&space;\{&space;-\frac{(x-\mu)^2}{2\sigma^2}&space;\right&space;\}&space;\end{align*}" />
+
+- 正規分布の尤度関数
+<img src="https://latex.codecogs.com/gif.latex?\begin{align*}&space;L(\mu,&space;\sigma^2)&space;&=&space;\prod_{i=1}^{n}\frac{1}{\sqrt{2\pi\sigma^2}}exp\left&space;\{&space;-\frac{(x_i-\mu)^2}{2\sigma^2}&space;\right&space;\}&space;\end{align*}" />
+
+- 対数尤度関数
+<img src="https://latex.codecogs.com/gif.latex?\begin{align*}&space;logL(\mu,&space;\sigma^2)&space;&=&space;l(\mu,&space;\sigma^2)&space;\\&space;&=&space;log\prod_{i=1}^{n}\frac{1}{\sqrt{2\pi\sigma^2}}exp\left&space;\{&space;-\frac{(x_i-\mu)^2}{2\sigma^2}&space;\right&space;\}&space;\\&space;&=&space;\sum_{i=1}^{n}log\left&space;(&space;\frac{1}{\sqrt{2\pi\sigma^2}}exp\left&space;\{&space;-\frac{(x_i-\mu)^2}{2\sigma^2}&space;\right&space;\}&space;\right&space;)&space;\\&space;&=&space;-\frac{n}{2}log(2\pi\sigma^2)&space;-&space;\frac{1}{2\sigma^2}\sum_{i=1}^{n}(x_i-\mu)^2&space;\\&space;&=&space;-\frac{n}{2}log(2\pi)&space;-&space;\frac{n}{2}log(\sigma^2)&space;-&space;\frac{1}{2\sigma^2}\sum_{i=1}^{n}(x_i-\mu)^2&space;\end{align*}" />
+
+- μで偏微分して最尤推定量を求める
+<img src="https://latex.codecogs.com/gif.latex?\begin{align*}&space;\frac{\partial&space;l(\mu,&space;\sigma^2)}{\partial&space;\mu}&space;&=&space;-\frac{1}{2\sigma^2}\sum_{i=1}^{n}(-2x_i&plus;2\mu)&space;\\&space;&=&space;\frac{1}{\sigma^2}\sum_{i=1}^{n}x_i-\frac{n}{\sigma^2}\mu&space;\\&space;&=&space;\frac{1}{\sigma^2}\left&space;\{&space;\sum_{i=1}^{n}x_i-n\mu&space;\right&space;\}&space;\end{align*}" />
+
+<img src="https://latex.codecogs.com/gif.latex?\begin{align*}&space;\frac{1}{\sigma^2}\left&space;\{&space;\sum_{i=1}^{n}x_i-n\mu&space;\right&space;\}&space;&=&space;0&space;\\&space;\sum_{i=1}^{n}x_i-n\mu&space;&=&space;0&space;\\&space;n\mu&space;&=&space;\sum_{i=1}^{n}x_i&space;\\&space;\mu&space;&=&space;\frac{1}{n}\sum_{i=1}^{n}x_i&space;\end{align*}" />
+
+- σ^2で偏微分して最尤推定量を求める
+<img src="https://latex.codecogs.com/gif.latex?\begin{align*}&space;\frac{\partial&space;l(\mu,&space;\sigma^2)}{\partial&space;\sigma^2}&space;&=&space;-\frac{n}{2\sigma^2}&space;&plus;\frac{1}{2\sigma^4}\sum_{i=1}^{n}(x_i-\mu)^2&space;\end{align*}" />
+
+<img src="https://latex.codecogs.com/gif.latex?\begin{align*}&space;-\frac{n}{2\sigma^2}&space;&plus;\frac{1}{2\sigma^4}\sum_{i=1}^{n}(x_i-\mu)^2&space;&=&space;0&space;\\&space;\frac{n}{2\sigma^2}&space;&=&space;\frac{1}{2\sigma^4}\sum_{i=1}^{n}(x_i-\mu)^2&space;\\&space;\sigma^2&space;&=&space;\frac{1}{n}\sum_{i=1}^{n}(x_i-\mu)^2&space;\end{align*}" />
+
+- 分散の最尤推定量と標本分散（=不偏分散）は実は異なっている
