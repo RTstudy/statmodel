@@ -201,3 +201,52 @@
 <img src="https://latex.codecogs.com/gif.latex?\begin{align*}&space;-\frac{n}{2\sigma^2}&space;&plus;\frac{1}{2\sigma^4}\sum_{i=1}^{n}(x_i-\mu)^2&space;&=&space;0&space;\\&space;\frac{n}{2\sigma^2}&space;&=&space;\frac{1}{2\sigma^4}\sum_{i=1}^{n}(x_i-\mu)^2&space;\\&space;\sigma^2&space;&=&space;\frac{1}{n}\sum_{i=1}^{n}(x_i-\mu)^2&space;\end{align*}" />
 
 - 分散の最尤推定量と標本分散（=不偏分散）は実は異なっている
+
+
+# 第七章
+
+- テクニカルな説明はほとんどRのコード内にコメントで記載した
+
+## 一般化線形混合モデルの考え方
+- 本文の例である二項分布の場合は以下で定式化する
+	- 以下の式でx_iにおける二項分布のパラメータqを推定している。このときのリンク関数はlogit関数である
+<img src="https://latex.codecogs.com/gif.latex?logit(q_i)&space;=&space;\beta_1&space;&plus;&space;\beta_2x_i&space;&plus;&space;r_i" />
+
+- これまでなかったr_iの項が追加されている
+- r_iは過分散を表現するためのパラメータであり、平均0、標準偏差sの正規分布に従うと仮定する
+<img src="https://latex.codecogs.com/gif.latex?r_i&space;\sim&space;N(0,s^2)" />
+
+- つまり、r_iの確率分布は以下で示すことができる
+<img src="https://latex.codecogs.com/gif.latex?p(r_i|s)&space;=&space;\frac{1}{\sqrt{2\pi&space;s^2}}exp(-\frac{r_i^{2}}{2s^2})" />
+
+- しかし、r_iはそれ自体では最尤推定できないので、以下のような尤度関数を構成する
+	- これをどう解いたら良いのかはわからない
+	- 解を求めるのはRがやってくれるので、このあたりの導出とかは今度探してみよう
+<img src="https://latex.codecogs.com/gif.latex?L_i&space;=&space;\int_{-\infty}^{\infty}p(y_i|\beta_1,\beta_2,r_i)p(r_i|s)dr_i" />
+
+- 素朴に考えるとr_i=0の時にp(r_i|s)が最も大きくなるのでr_i=0として推定されやすくなるのでは？と思ったけれども、それも込みでqを推定するので必ずしもそうでないことに思い至った
+
+## 反復・疑似反復 p161
+- 「反復」「疑似反復」という用語の使い方がちょっと一般的でないので、(A)~(D)の例を自分なりに書き換えてみる
+	- A
+		- 各鉢に1個体ずつしかおらず、1個体から種子を一つしかとらないため、測定できるのは「全体としての種子の生存率」のみである
+		- したがって、個体差も鉢差も入れることができない
+	- B
+		- 各個体から複数の種子をとるため、「各個体の種子の生存率」が観測できる。しかし、鉢には1個体しかいないため、鉢全体としての種子の生存率はわからない
+		- したがって、個体差は入れられるが、鉢差は入れることができない
+	- C
+		- 各個体から1つずつしか種子をとらないため、各個体の種子の生存率はわからない。一方で鉢の中には複数の個体がいるため、「鉢全体としての種子の生存率」は観測できる
+		- したがって、個体差は入れられないが、鉢差は入れることができる
+	- D
+		- 個体から複数の種子をとり、鉢にも複数の個体がいるため、各個体および鉢全体の種子の生存率を観測できる
+		- したがって、個体差も鉢差も入れることができる
+- つまり、
+	- 反復：独立した対象から複数回データを観測する、ただしひとつの対象あたり1回の観測とする
+	- 疑似反復：独立していない対象からデータを複数回観測する
+
+### 余談
+- これは細胞を用いた実験やPCRにおけるtechnical replicateとbiological replicateの話に通じるように思う
+	- [What is the difference between a biological replicate and a technical replicate?](https://www.quora.com/What-is-the-difference-between-a-biological-replicate-and-a-technical-replicate)
+	- PCRの場合、一つのサンプルを増幅させて検出する。そのため、一つのサンプルが大量に「反復」されることになるが、それは元がひとつのサンプルなのでtechnical replicate(本文でいう疑似反復)
+	- 一方でPCRで複数のサンプル（違うヒトからとったもの）であれば、サンプルのソースがまったくことなるので、biological replicate(本文でいう反復)
+	- ただし、このとき同じヒトから複数のサンプルをとった場合はtechnical replicateである、なぜならそれらのサンプルは生物学的に異なるものだとは言えないからである
