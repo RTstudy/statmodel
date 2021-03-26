@@ -332,9 +332,9 @@
 - 真の生存率q=0.45としたときのメトロポリス法の結果
 - サンプリングの軌跡
 	- 濃いプロットがたくさんサンプリングされたqの値
-	![fig_9_01](chapter09_fig01.png)
+	![fig_8_01](chapter08_fig01.png)
 - サンプリングされたqの値のヒストグラム, 縦線は真のq=.045
-	![fig_9_02](chapter09_fig02.png)
+	![fig_8_02](chapter08_fig02.png)
 - 95%信用区間
 	- 中央値で真の値0.45が得られた
 ```R
@@ -342,3 +342,131 @@
  2.5%   50% 97.5% 
  0.38  0.45  0.53 
 ```
+
+
+# 第九章
+
+## Rstanを使う
+- 個人的な好みの問題で、WinBUGSではなくStanを使うことにする
+	- stanコードの書き方はWinBUGSに似ているが、細かいところで異なるところがあるので注意
+	- 本文だと著者作成のラッパー関数を使わないといけないのが個人的に気に入らない
+	- rstanだと一通り関数化されているので簡単
+- RStanのインストール方法は[時系列分析と状態空間モデルの基礎: RとStanで学ぶ理論と実装](https://www.amazon.co.jp/dp/4903814874/)に記載がある
+	- RStanをインストールすればStanも同時にインストールできるので簡単（ちなみにR3.6系でやや古い、最新のR4.0系だと簡単かも）
+	- ただしRtoolsのインストールが必要なので注意
+		- [Using Rtools40 on Windows](https://cran.r-project.org/bin/windows/Rtools/)
+		- これはR4.0.0以上のみ対応なので、古いバージョンのRにRtoolを入れる場合はドキュメントをちゃんと読むこと
+	- Rtoolsがインストール出来たら`install.packages('rstan', dependencies = TRUE)`でrstanを依存パッケージとともにインストール
+		- pathの通し方
+			- [cxxfunctionのエラーはRtoolsへのパスが原因かも](https://qiita.com/kota9/items/055f5b87e154da4de172)
+			- [[質問] Rstanを実行しようとして、Rtools35インストール後、Rが[c:/Rtools/mingw_64/bin/gcc]を認識しない](https://qiita.com/Akio201907/items/a2415e3f18fd95fe560f)
+			- こんなエラーが出たら
+				- 'makevars_user' is not an exported object from 'namespace:withr' withrをインストールすると良い
+
+## Rstanで本文と同じことをやってみた結果
+- stanをやるまえにglmで得られる推定結果を確認する
+	- なお、ここで推定しているパラメータはポアソン回帰の回帰係数であり、ポアソン分布のパラメータλではないことに注意する
+		- 回帰係数は正規分布を仮定
+			- ポアソン分布のλをベイズ推定するのならば、λはガンマ分布を仮定する（ガンマ分布は[0,∞]の範囲の連続値の分布であるため）
+		- たぶんこのあたりで混乱しそうな気がする
+	- beta_1はちゃんと推定できている
+	- beta_2は0に近い値のため、統計的に有意な値にならなかった
+	- でもまぁ、良い推定結果にはなっている
+```R
+> summary(glm_model)
+
+Call:
+glm(formula = y ~ x, family = poisson, data = d)
+
+Deviance Residuals: 
+     Min        1Q    Median        3Q       Max  
+-1.52168  -0.53195   0.06417   0.40797   1.57939  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  1.56606    0.35995   4.351 1.36e-05 ***
+x            0.08334    0.06838   1.219    0.223   
+```
+![fig_9_01](chapter09_fig01.png)
+
+- stanで推定されたパラメータ
+	- beta_1とbeta_2はポアソン回帰の係数
+	- lambdaはそれぞれの体サイズxに対して推定されたポアソン分布のパラメータλ(途中割愛、全部で20個ある)
+	- yhatはそれぞれの体サイズxに大して推定された種子数yの推定値(途中割愛、全部で20個ある)
+``` R
+              mean se_mean   sd    2.5%     25%     50%     75%   97.5% n_eff Rhat
+beta_1        1.56    0.00 0.08    1.39    1.51    1.56    1.61    1.72   797 1.01
+beta_2        0.08    0.00 0.02    0.05    0.07    0.08    0.09    0.12   793 1.01
+lambda[1]     1.81    0.00 0.04    1.74    1.79    1.81    1.84    1.89   902 1.01
+lambda[2]     1.83    0.00 0.04    1.76    1.81    1.83    1.85    1.90   932 1.01
+lambda[3]     1.85    0.00 0.03    1.78    1.83    1.85    1.87    1.91   973 1.01
+...
+yhat[1]       6.17    0.04 2.48    2.00    4.00    6.00    8.00   11.00  4017 1.00
+yhat[2]       6.28    0.04 2.50    2.00    5.00    6.00    8.00   12.00  3773 1.00
+yhat[3]       6.40    0.04 2.51    2.00    5.00    6.00    8.00   12.00  3747 1.00
+...
+lp__       2898.47    0.04 1.04 2895.60 2898.09 2898.80 2899.20 2899.46   849 1.01
+```
+- パラメータの95%信用区間
+``` R
+> ## beta_1
+> quantile(stan_sampling_res$beta_1,probs = c(0.025,0.5,0.975))
+    2.5%      50%    97.5% 
+1.394503 1.563062 1.717187 
+> ## beta_2
+> quantile(stan_sampling_res$beta_2,probs = c(0.025,0.5,0.975))
+      2.5%        50%      97.5% 
+0.05433440 0.08420478 0.11548769 
+```
+- 推定されたパラメータの事後分布
+![fig_9_02](chapter09_fig02.png)
+- パラメータの同時分布
+	- 本文だとbeta_1とbeta_2が独立っぽい感じになっていたが、stanだと相関がある同時分布となった
+	- これはおそらくサンプリング方法の違いによるものとおもわれる
+		- WinBUGSはギブズサンプリング、Stanはハミルトニアンモンテカルロ法
+![fig_9_03](chapter09_fig03.png)
+- yの推定値の95%信用区間を同時に図示
+	- サンプル数が20と非常に少ないので、これくらいばらつきのある推定になっている
+![fig_9_04](chapter09_fig04.png)
+
+## 共役事前分布
+- **以降で考えるのは確率分布関数のパラメータのベイズ推定である**
+- ベイズ推定では非常に重要な概念
+- 共役事前分布の確認に必要な'カーネル'、'正規化定数'については[基礎からのベイズ統計学: ハミルトニアンモンテカルロ法による実践的入門](https://www.amazon.co.jp/dp/4254122128/)のp46～50に解説が記載されています
+
+### 正規化定数
+- ある確率分布において、その積分を1にするために使用される項
+	- 二項分布<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20%5Cbinom%7Bn%7D%7Bx%7D%5Ctheta%5Ex%281-%5Ctheta%29%5E%7Bn-x%7D" />における<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20%5Cbinom%7Bn%7D%7Bx%7D" />
+	- ベータ分布<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20%5Cfrac%7Bx%5E%7B%5Calpha%5E1%7D%281-x%29%5E%7B%5Cbeta-1%7D%7D%7BB%28%5Calpha%2C%5Cbeta%29%7D" />における<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20B%28%5Calpha%2C%5Cbeta%29" />
+	- などなど
+
+### カーネル
+- ある確率分布関数の正規化定数を除いた項
+	- 二項分布の<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20%5Ctheta%5Ex%281-%5Ctheta%29%5E%7Bn-x%7D" />
+	- ベータ分布の<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20x%5E%7B%5Calpha-1%7D%281-x%29%5E%7B%5Cbeta-1%7D" />
+	- などなど
+- 正規か定数はあくまで分布関数の積分を1にするための役割なので、分布関数の性質はカーネルに集約される
+- ある確率変数が二項分布に従うとき、比例記号<img src="https://latex.codecogs.com/gif.latex?%5Cpropto" />を用いて以下のように表すことができる
+<img src="https://latex.codecogs.com/gif.latex?f%28x%7C%5Ctheta%29%20%5Cpropto%20x%5E%7B%5Ctheta%7D%281-x%29%5E%7Bn-%5Ctheta%7D" />
+
+### ベイズの定理における正規化定数
+- まず、条件付き確率は以下のように表すことができる
+<img src="https://latex.codecogs.com/gif.latex?%5Cbegin%7Balign*%7D%20p%28Y%7CX%29%20%26%3D%20%5Cfrac%7Bp%28X%20%5Ccap%20Y%29%7D%7Bp%28X%29%7D%20%5Cend%7Balign*%7D" />
+- この条件付確率はベイズの定理より以下のように書くこともできる
+<img src="https://latex.codecogs.com/gif.latex?%5Cbegin%7Balign*%7D%20p%28Y%7CX%29%20%26%3D%20%5Cfrac%7Bp%28X%7CY%29p%28Y%29%7D%7Bp%28X%29%7D%20%5Cend%7Balign*%7D" />
+- ベイズ推定によって推定したいのは、あるデータXが得られたときのパラメータθであるので、
+<img src="https://latex.codecogs.com/gif.latex?%5Cbegin%7Balign*%7D%20p%28%5Ctheta%7CX%29%20%26%3D%20%5Cfrac%7Bp%28X%7C%5Ctheta%29p%28%5Ctheta%29%7D%7Bp%28X%29%7D%20%5Cend%7Balign*%7D" />
+- このとき、分母の<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20p%28X%29" />はデータXの得られる確率であり、パラメータによらず一定であるため、以下のように比例関係で表すことができる
+<img src="https://latex.codecogs.com/gif.latex?%5Cbegin%7Balign*%7D%20p%28%5Ctheta%7CX%29%20%5Cpropto%20p%28X%7C%5Ctheta%29p%28%5Ctheta%29%20%5C%5C%20%5Cend%7Balign*%7D" />
+- ここで<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20p%28X%7C%5Ctheta%29" />はパラメータθであるときにXが得られる確率、つまり尤度であり、<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20p%28%5Ctheta%29" />はパラメータθの事前分布である
+
+### ベータ分布の共役事前分布
+- 以上の式およびカーネルを用いて、ベータ分布の共役事前分布を求める
+	- データXはパラメータθで二項分布するものとする
+	- パラメータθの事前分布をベータ分布とする
+		- 二項分布のパラメータθは事象の成功確率を表す
+		- ベータ分布は[0,1]の連続値の確率分布であるため、二項分布のパラメータθの分布を示すのに都合が良い
+<img src="https://latex.codecogs.com/gif.latex?%5Cbegin%7Balign*%7D%20f%28%5Ctheta%7Cx%29%20%26%5Cpropto%20f%28x%7C%5Ctheta%29f%28%5Ctheta%29%20%5C%5C%20%26%5Cpropto%20%5Ctheta%5Ex%281-%5Ctheta%29%5E%7Bn-x%7D%5Ccdot%20%5Ctheta%5E%7Bp-1%7D%281-%5Ctheta%29%5E%7Bq-1%7D%20%5C%5C%20%26%5Cpropto%20%5Ctheta%5E%7Bx&plus;p-1%7D%281-%5Ctheta%29%5E%7Bn-x&plus;q-1%7D%20%5C%5C%20%26%5Cpropto%20%5Ctheta%5E%7Bp%27-1%7D%281-%5Ctheta%29%5E%7Bq%27-1%7D%20%5Cend%7Balign*%7D" />
+	- ただし<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20p%27%20%3D%20x&plus;p" />、<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20q%27%20%3D%20n-x&plus;q" />とした
+- 以上の式変形により、ベータ分布を事前分布とすると事後分布もベータ分布となることがわかった
+- このように、事前分布と事後分布が同じ確率密度関数になることを**自然共役事前分布**と呼ぶ
