@@ -452,12 +452,16 @@ lp__       2898.47    0.04 1.04 2895.60 2898.09 2898.80 2899.20 2899.46   849 1.
 ### ベイズの定理における正規化定数
 - まず、条件付き確率は以下のように表すことができる
 <img src="https://latex.codecogs.com/gif.latex?%5Cbegin%7Balign*%7D%20p%28Y%7CX%29%20%26%3D%20%5Cfrac%7Bp%28X%20%5Ccap%20Y%29%7D%7Bp%28X%29%7D%20%5Cend%7Balign*%7D" />
+
 - この条件付確率はベイズの定理より以下のように書くこともできる
 <img src="https://latex.codecogs.com/gif.latex?%5Cbegin%7Balign*%7D%20p%28Y%7CX%29%20%26%3D%20%5Cfrac%7Bp%28X%7CY%29p%28Y%29%7D%7Bp%28X%29%7D%20%5Cend%7Balign*%7D" />
+
 - ベイズ推定によって推定したいのは、あるデータXが得られたときのパラメータθであるので、
 <img src="https://latex.codecogs.com/gif.latex?%5Cbegin%7Balign*%7D%20p%28%5Ctheta%7CX%29%20%26%3D%20%5Cfrac%7Bp%28X%7C%5Ctheta%29p%28%5Ctheta%29%7D%7Bp%28X%29%7D%20%5Cend%7Balign*%7D" />
+
 - このとき、分母の<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20p%28X%29" />はデータXの得られる確率であり、パラメータによらず一定であるため、以下のように比例関係で表すことができる
 <img src="https://latex.codecogs.com/gif.latex?%5Cbegin%7Balign*%7D%20p%28%5Ctheta%7CX%29%20%5Cpropto%20p%28X%7C%5Ctheta%29p%28%5Ctheta%29%20%5C%5C%20%5Cend%7Balign*%7D" />
+
 - ここで<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20p%28X%7C%5Ctheta%29" />はパラメータθであるときにXが得られる確率、つまり尤度であり、<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20p%28%5Ctheta%29" />はパラメータθの事前分布である
 
 ### ベータ分布の共役事前分布
@@ -467,6 +471,8 @@ lp__       2898.47    0.04 1.04 2895.60 2898.09 2898.80 2899.20 2899.46   849 1.
 		- 二項分布のパラメータθは事象の成功確率を表す
 		- ベータ分布は[0,1]の連続値の確率分布であるため、二項分布のパラメータθの分布を示すのに都合が良い
 <img src="https://latex.codecogs.com/gif.latex?%5Cbegin%7Balign*%7D%20f%28%5Ctheta%7Cx%29%20%26%5Cpropto%20f%28x%7C%5Ctheta%29f%28%5Ctheta%29%20%5C%5C%20%26%5Cpropto%20%5Ctheta%5Ex%281-%5Ctheta%29%5E%7Bn-x%7D%5Ccdot%20%5Ctheta%5E%7Bp-1%7D%281-%5Ctheta%29%5E%7Bq-1%7D%20%5C%5C%20%26%5Cpropto%20%5Ctheta%5E%7Bx&plus;p-1%7D%281-%5Ctheta%29%5E%7Bn-x&plus;q-1%7D%20%5C%5C%20%26%5Cpropto%20%5Ctheta%5E%7Bp%27-1%7D%281-%5Ctheta%29%5E%7Bq%27-1%7D%20%5Cend%7Balign*%7D" />
+	
 	- ただし<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20p%27%20%3D%20x&plus;p" />、<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20q%27%20%3D%20n-x&plus;q" />とした
+
 - 以上の式変形により、ベータ分布を事前分布とすると事後分布もベータ分布となることがわかった
 - このように、事前分布と事後分布が同じ確率密度関数になることを**自然共役事前分布**と呼ぶ
