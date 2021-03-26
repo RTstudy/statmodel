@@ -472,7 +472,7 @@ lp__       2898.47    0.04 1.04 2895.60 2898.09 2898.80 2899.20 2899.46   849 1.
 		- ベータ分布は[0,1]の連続値の確率分布であるため、二項分布のパラメータθの分布を示すのに都合が良い
 <img src="https://latex.codecogs.com/gif.latex?%5Cbegin%7Balign*%7D%20f%28%5Ctheta%7Cx%29%20%26%5Cpropto%20f%28x%7C%5Ctheta%29f%28%5Ctheta%29%20%5C%5C%20%26%5Cpropto%20%5Ctheta%5Ex%281-%5Ctheta%29%5E%7Bn-x%7D%5Ccdot%20%5Ctheta%5E%7Bp-1%7D%281-%5Ctheta%29%5E%7Bq-1%7D%20%5C%5C%20%26%5Cpropto%20%5Ctheta%5E%7Bx&plus;p-1%7D%281-%5Ctheta%29%5E%7Bn-x&plus;q-1%7D%20%5C%5C%20%26%5Cpropto%20%5Ctheta%5E%7Bp%27-1%7D%281-%5Ctheta%29%5E%7Bq%27-1%7D%20%5Cend%7Balign*%7D" />
 	
-	- ただし<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20p%27%20%3D%20x&plus;p" />、<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20q%27%20%3D%20n-x&plus;q" />とした
+- ただし<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20p%27%20%3D%20x&plus;p" />、<img src="https://latex.codecogs.com/gif.latex?%5Cinline%20q%27%20%3D%20n-x&plus;q" />とした
 
 - 以上の式変形により、ベータ分布を事前分布とすると事後分布もベータ分布となることがわかった
 - このように、事前分布と事後分布が同じ確率密度関数になることを**自然共役事前分布**と呼ぶ
