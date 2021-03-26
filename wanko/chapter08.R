@@ -120,12 +120,12 @@ for(i in seq(n)){
 
 # 軌跡を描くためのデータフレームを作成
 res_df_walk <- merge(res_df, loglik_df, by = 'q') %>%
-  mutate(loglik_plot = loglik + (step-(n/2))*0.0001) %>%
+  mutate(loglik_plot = loglik + (step-(n/2))*0.00001) %>%
   arrange(step)
 
 # 軌跡を描く
 ggplot(res_df_walk, aes(x=q, y=loglik_plot)) +
-  geom_point()
+  geom_point(size=2, alpha=0.01)
 
 # qのステップ進展による推移
 ggplot(res_df, aes(x=step, y=q)) +
@@ -133,8 +133,13 @@ ggplot(res_df, aes(x=step, y=q)) +
 
 # 全ステップデータを使ったqのヒストグラム
 ggplot(res_df, aes(x=q, y=..density..)) +
-  geom_histogram(binwidth = 0.01)
+  geom_histogram(binwidth = 0.001)
 
 # 前半10000ステップを除いたヒストグラム
 ggplot(res_df[res_df$step>10000,], aes(x=q, y=..density..)) +
-  geom_histogram(binwidth = 0.01)
+  geom_histogram(binwidth = 0.01) +
+  geom_density(fill='blue',alpha=0.3, bw=0.01) +
+  geom_vline(xintercept = 0.45, lty='dashed', size=2)
+
+# qの95%信用区間
+quantile(res_df[res_df$step>10000,2],probs = c(0.025,0.5,0.975))
