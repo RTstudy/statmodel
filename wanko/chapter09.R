@@ -114,3 +114,60 @@ ggplot(d, aes(x=x, y=y)) +
   geom_point(size=5, shape=21, fill='white') +
   geom_ribbon(data=interval_df, aes(x=x, ymin=lower, ymax=upper), fill='#000000', alpha=0.3) +
   geom_line(data=interval_df, aes(x=x, y=median))
+
+
+
+# 事前分布と事後分布 ---------------------------------------------------------------
+
+# p214のβ1の無情報事前分布を入力としたときの事後分布を計算してみる
+
+# 平均0、標準偏差100000の正規分布を無情報事前分布とする
+mu <- 0
+sigma <- 100000
+beta1_seq <- seq(-10,10,0.01)
+posterior_df <- data.frame(beta1_seq=beta1_seq)
+
+# step1:β2=0.0として事後分布を計算
+posterior_dist <- sapply(beta1_seq, function(x){
+  lambda <- exp(x)
+  p <- exp(sum(dpois(x = d$y, lambda = lambda, log = TRUE))) * (dnorm(x,mean=mu, sd=sigma)*0.01)
+})
+
+ggplot() +
+  geom_line(aes(x=beta1_seq, y=posterior_dist/sum(posterior_dist))) +
+  geom_line(aes(x=beta1_seq, y=dnorm(beta1_seq, mean=mu, sd=sigma))) +
+  xlim(1.6,2.4)
+
+## 事後分布の平均と分散
+posterior_dist <- posterior_dist/sum(posterior_dist)*100
+posterior_df$step1 <- posterior_dist
+mu_post <- sum(beta1_seq*posterior_dist*0.01)
+sigma_post <- sum(((beta1_seq-mu)^2)*posterior_dist*0.01)
+
+mu_post
+sigma_post
+
+# sep2:β2が-0.016とサンプリングされたときの事後分布の変化
+posterior_dist <- sapply(beta1_seq, function(x){
+  lambda <- exp(x + d$x*(-0.016))
+  p <- exp(sum(dpois(x = d$y, lambda = lambda, log = TRUE))) * (dnorm(x,mean=mu, sd=sigma)*0.01) #事前分布には無情報正規分布をいつも使う
+})
+
+posterior_dist <- posterior_dist/sum(posterior_dist)*100
+posterior_df$step2 <- posterior_dist
+mu_post <- sum(beta1_seq*posterior_dist*0.01)
+sigma_post <- sum(((beta1_seq-mu)^2)*posterior_dist*0.01)
+
+# step3:β2=0.015とサンプリングされたとき
+posterior_dist <- sapply(beta1_seq, function(x){
+  lambda <- exp(x + d$x*(0.015))
+  p <- exp(sum(dpois(x = d$y, lambda = lambda, log = TRUE))) * (dnorm(x,mean=mu, sd=sigma)*0.01) #事前分布には無情報正規分布をいつも使う
+})
+
+posterior_dist <- posterior_dist/sum(posterior_dist)*100
+posterior_df$step3 <- posterior_dist
+
+ggplot() +
+  geom_line(aes(x=beta1_seq, y=posterior_dist/sum(posterior_dist))) +
+  #geom_line(aes(x=beta1_seq, y=dnorm(beta1_seq, mean=mu, sd=sigma))) +
+  xlim(1.6,2.4)
