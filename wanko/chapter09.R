@@ -167,7 +167,9 @@ posterior_dist <- sapply(beta1_seq, function(x){
 posterior_dist <- posterior_dist/sum(posterior_dist)*100
 posterior_df$step3 <- posterior_dist
 
-ggplot() +
-  geom_line(aes(x=beta1_seq, y=posterior_dist/sum(posterior_dist))) +
-  #geom_line(aes(x=beta1_seq, y=dnorm(beta1_seq, mean=mu, sd=sigma))) +
+# plot
+ggplot(data=posterior_df) +
+  geom_line(size=2,aes(x=beta1_seq, y=step1/100, color="step1")) +
+  geom_line(size=2,aes(x=beta1_seq, y=step2/100, color="step2")) +
+  geom_line(size=2,aes(x=beta1_seq, y=step3/100, color="step3")) +
   xlim(1.6,2.4)
