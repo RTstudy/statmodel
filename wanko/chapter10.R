@@ -275,3 +275,27 @@ ggplot(data=y_hat_df, aes(x=pot, y=y)) +
   geom_boxplot(aes(color=f)) +
   geom_segment(x=1,xend=5, y=6.64, yend=6.64, lty='dashed', color='deeppink', size=1) + 
   geom_segment(x=6,xend=10, y=4.4, yend=4.4, lty='dashed', color='skyblue', size=1)
+
+# Še”«‚²‚Æ‚Ìyhat‚Ì•ª•z‚ğ‹‚ß‚é
+y_hat_all <- t(stan_sampling_res$yhat) %>%
+  data.frame(.,nested$pot)
+
+y_hat_list <- lapply(levels(nested$pot),function(x){
+  vec <- y_hat_all[y_hat_all$nested.pot==x,1:4000] %>% unlist()
+  return(data.frame(x=vec))
+  })
+
+g_list <- lapply(seq(10), function(i){
+  if(i<6){
+    fill_color <- 'deeppink'
+  }else{
+    fill_color <- 'skyblue'
+  }
+  ggplot(y_hat_list[[i]], aes(x=x, y=..density..)) +
+    geom_histogram(binwidth = 1, fill=fill_color) +
+    xlim(0,70) +
+    xlab(paste('pot',i)) +
+    coord_flip()
+})
+
+gridExtra::grid.arrange(grobs=g_list, ncol=10)
