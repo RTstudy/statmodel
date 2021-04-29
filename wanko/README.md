@@ -559,3 +559,45 @@ lp__       2898.47    0.04 1.04 2895.60 2898.09 2898.80 2899.20 2899.46   849 1.
 - yの推定値のサンプリング結果を鉢ごとのヒストグラムにするとこんな感じになる
 
 ![fig_10_11](chapter10_fig11.png)
+
+
+# 第十一章
+
+## stan化に失敗？
+- intrinsic CARモデルの考え方は理解できた
+- しかし、両隣の影響を場所差rに組み込む場合、単純なforループ処理だと「まだ発生させていないrを使って正規分布の平均を算出する」という処理を行ってしまうことになる
+	- 例えば、i=2のrを推定したい場合、その平均にr_1とr_3を用いることになるが、forループではまだr_1しか発生させていないため、r_3の値を本来は用いることができない
+	- おそらく、WinBUGSのcar.model関数ではそのあたりをうまく処理しているのだと思われるが、stanではcarモデルに相当する組み込み関数が見当たらなかった
+	- そこで、いろいろ調べた挙句、両隣ではなくひとつ前の値を参照することとし、r_1はmu_zeroとして推定するようにしている
+	- このやり方が正しいとは思わないが、いまできる範囲ではここまでが限界
+- 素直にstanで実装するとまともに推定できない状態になったため、上記のように変更してstanを実行、それでもいまいちちゃんと推定できていないっぽい
+- もしかしたら[アヒル本](https://www.amazon.co.jp/dp/4320112423)をやった方が良いのかもしれない
+
+``` R
+Warning messages:
+1: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.
+Running the chains for more iterations may help. See
+http://mc-stan.org/misc/warnings.html#bulk-ess 
+2: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.
+Running the chains for more iterations may help. See
+http://mc-stan.org/misc/warnings.html#tail-ess 
+```
+
+- 結果一部
+``` R
+             mean se_mean    sd   2.5%    25%    50%    75%  97.5% n_eff Rhat
+beta         1.13    0.71 10.26 -19.31  -5.98   1.41   8.38  20.77   206 1.03
+s            0.23    0.00  0.05   0.15   0.20   0.23   0.27   0.35   749 1.01
+```
+
+- 平滑化スプラインを使って図11.2を再現
+
+![fig_11_09](chapter11_fig01.png)
+
+- trace plot
+
+![fig_11_02](chapter11_fig02.png)
+
+- yの推定値の80%信頼区間をプロット。図11.4っぽくなったが、推定の区間幅は本文よりも大きくなっており、いまいち良い推定ができていないように感じる
+
+![fig_11_03](chapter11_fig03.png)
